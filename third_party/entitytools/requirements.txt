@@ -1,0 +1,11 @@
+transformers
+accelerate
+datasets
+scikit-learn
+pyterrier_pisa
+intervaltree
+wandb
+pandas
+tqdm
+bioc
+spacy
