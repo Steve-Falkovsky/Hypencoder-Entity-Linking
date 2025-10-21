@@ -6,6 +6,14 @@ import json
 import xml.etree.ElementTree as ET
 
 
+
+"""
+Command to run this:
+python ../scripts/prepare_bc5cdr_and_mesh.py --bc5cdr_dir corpora_sources/CDR_Data/CDR.Corpus.v010516 --mesh2015_dir corpora_sources/mesh2015 --out_train bc5cdr_train.bioc.xml.gz --out_val bc5cdr_val.bioc.xml.gz --out_test bc5cdr_test.bioc.xml.gz --out_ontology mesh2015.json.gz
+
+"""
+
+
 def main():
     parser = argparse.ArgumentParser(description='Convert BC5CDR corpus to BioCXML and set up a matching MeSH ontology')
     parser.add_argument('--bc5cdr_dir',required=True,type=str,help='Directory with source NCBI Disease corpus files')
@@ -18,6 +26,8 @@ def main():
 
     assert os.path.isdir(args.bc5cdr_dir)
 
+
+    # ----------------- BC5CDR processing -----------------
     print("Loading documents...")
     with open(f'{args.bc5cdr_dir}/CDR_TrainingSet.BioC.xml') as f:
         train_collection = biocxml.load(f)
@@ -38,6 +48,9 @@ def main():
         for passage in doc.passages:
             passage.annotations = [ anno for anno in passage.annotations if len(anno.locations) == 1 ]
     
+    
+    
+    # --------------- MeSH2015 processing -----------------
     ontology = []
 
     print("Loading MeSH descriptors...")
@@ -46,9 +59,9 @@ def main():
     for record in root.findall("DescriptorRecord"):
         record_ui = record.find("DescriptorUI").text
         name = record.find("DescriptorName/String").text
-    
+        
         scope_note = record.find("ConceptList/Concept/ScopeNote")
-        scope_note = scope_note.text if scope_note else ''
+        scope_note = scope_note.text if scope_note is not None else ''
         
         aliases = [ s.text for s in record.findall("ConceptList/Concept/TermList/Term/String") ]
         aliases = sorted(set(aliases))
