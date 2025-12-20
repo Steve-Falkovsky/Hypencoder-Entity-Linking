@@ -1,4 +1,4 @@
-from utils import extract_first_n_docs, get_entry_by_id, read_first_n_from_json_gz
+from my_stuff.utils import extract_first_n_docs, get_entry_by_id, read_first_n_from_json_gz
 
 # Load model directly
 from transformers import AutoTokenizer, AutoModel
@@ -6,7 +6,6 @@ from transformers import AutoTokenizer, AutoModel
 model_name = "cambridgeltl/SapBERT-from-PubMedBERT-fulltext"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModel.from_pretrained(model_name)
-
 
 docs = extract_first_n_docs("processed_sources/bc5cdr_train.bioc.xml.gz", 5)
 
@@ -18,10 +17,9 @@ annotations = [passage['annotations'] for doc in docs for passage in doc['passag
 
 print("\n\n\n")
 
-print(f"First text: {texts[0]}\n")
-
 # print annotations from first n passages
-for i in range(1):
+n = 3
+for i in range(n):
     print(f"Annotations in passage {i+1}: {annotations[i]}\n")
 
 # Match BC5CDR to Mesh IDs
@@ -44,6 +42,6 @@ for i in range(2):
 
 
 # Tokenize the texts
-inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+# inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
 
 #print(f"first input: {inputs['input_ids'][0]}\n")

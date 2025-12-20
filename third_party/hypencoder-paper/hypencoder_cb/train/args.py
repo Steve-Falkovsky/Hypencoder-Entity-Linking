@@ -20,7 +20,11 @@ class HypencoderModelConfig:
 
     checkpoint_path: Optional[str] = None
 
-    model_type: Literal["hypencoder", "biencoder"] = "hypencoder"
+    # model_type: Literal["hypencoder", "biencoder"] = "hypencoder"
+    # OmegaConf doesn't support the Literal type; using enum instead is cumbersome 
+    # so we just use str instead and validate manually if needed.
+    model_type: str = "hypencoder"
+    
     shared_encoder: bool = False
 
 
@@ -46,11 +50,12 @@ class HypencoderDataConfig:
 
 @dataclass
 class HFTrainerConfig:
-    output_dir: str = ""
+    # output_dir: str = ""
+    output_dir: str = "/tmp/output/"
     overwrite_output_dir: bool = False
     remove_unused_columns: bool = False
 
-    evaluation_strategy: str = "no"
+    # evaluation_strategy: str = "no"
     eval_strategy: str = "no"
     eval_steps: int = 500
 
@@ -89,9 +94,10 @@ class HFTrainerConfig:
     disable_tqdm: bool = False
 
     ddp_find_unused_parameters: Optional[bool] = True
-    # str or bool string options are: "full_shard", "auto_wrap", ...
-    fsdp: Any = False
-    fsdp_config: Optional[Dict[str, Any]] = None
+    #fsdp: Any = False
+    # fsdp: Any = "no_shard"
+
+    #fsdp_config: Optional[Dict[str, Any]] = None
 
     report_to: str = "none"
 
@@ -108,22 +114,30 @@ class HFTrainerConfig:
 
 @dataclass
 class HypencoderTrainerConfig:
-    hf_trainer_config: HFTrainerConfig = HFTrainerConfig(
-        output_dir="/tmp/output/"
-    )
+    # hf_trainer_config: HFTrainerConfig = HFTrainerConfig(
+    #     output_dir="/tmp/output/"
+    # )
+    hf_trainer_config: HFTrainerConfig = field(default_factory=HFTrainerConfig) 
     resume_from_checkpoint: Optional[Any] = False
 
 
+# wrong way? why?
+# @dataclass
+# class HypencoderTrainingConfig:
+#     model_config = HypencoderModelConfig(
+#     )
+#     data_config = HypencoderDataConfig(
+#         training_data_jsonl="",
+#     )
+#     trainer_config = HypencoderTrainerConfig(
+#         hf_trainer_config=HFTrainerConfig(),
+#     )
+
 @dataclass
 class HypencoderTrainingConfig:
-    model_config = HypencoderModelConfig(
-    )
-    data_config = HypencoderDataConfig(
-        training_data_jsonl="",
-    )
-    trainer_config = HypencoderTrainerConfig(
-        hf_trainer_config=HFTrainerConfig(),
-    )
+    model_config: HypencoderModelConfig = field(default_factory=HypencoderModelConfig)
+    data_config: HypencoderDataConfig = field(default_factory=HypencoderDataConfig)
+    trainer_config: HypencoderTrainerConfig = field(default_factory=HypencoderTrainerConfig)
 
 
 def relative_file_path_to_abs_path(path: str) -> str:

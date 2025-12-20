@@ -10,12 +10,13 @@ import json
 # BC5CDR = "processed_sources/bc5cdr_train.bioc.xml.gz"  # the source path is determined by pwd
 
 
-def extract_first_n_docs(path: str, n: int):
+def extract_first_n_docs(path: str, n: int | None = None):
     """
     Read a gzipped BioC XML file at `path` and return a list with info for the first `n` documents.
+    If n is None (default), return info for all documents.
     Each list item is a dict: {'id': ..., 'passages': [ {'text': ..., 'annotations': [ {...}, ... ]}, ... ] }
     """
-    if n < 0:
+    if n is not None and n < 0:
         raise ValueError("n must be non-negative")
 
     results = []
@@ -23,7 +24,8 @@ def extract_first_n_docs(path: str, n: int):
         data = file.read()
 
     collection = bioc.biocxml.loads(data)
-    for document in collection.documents[:n]:
+    docs = collection.documents if n is None else collection.documents[:n]
+    for document in docs:
         doc_info = {'id': document.id, 'passages': []}
         for passage in document.passages:
             passage_info = {'text': passage.text, 'annotations': []}
@@ -43,9 +45,32 @@ def extract_first_n_docs(path: str, n: int):
         results.append(doc_info)
 
     return results
-                
-                
-                
+
+
+# get names
+def get_mention_names(path: str):
+    docs = extract_first_n_docs(path)
+    names = []
+    for doc in docs:
+        for passage in doc['passages']:
+            for anno in passage['annotations']:
+                names.append(anno['text'])
+    return names
+
+
+def get_mention_names_id_pairs(path: str):
+    """
+    Get list of tuples (mention name, id) pairs from BC5CDR BioC XML file at `path`.
+    """
+    docs = extract_first_n_docs(path)
+    name_id_pairs = []
+    for doc in docs:
+        for passage in doc['passages']:
+            for anno in passage['annotations']:
+                name_id_pairs.append((anno['text'], anno['infons'].get('concept_id')))
+    return name_id_pairs
+
+
 # mesh = "processed_sources/mesh2015.json.gz"
 
 def read_first_n_from_json_gz(path: str, n: int | None = None) -> list:
@@ -64,6 +89,19 @@ def read_first_n_from_json_gz(path: str, n: int | None = None) -> list:
         raise ValueError(f"JSON top-level is {type(data).__name__}, expected list")
 
     return data if n is None else data[:n]
+
+
+# get entity names
+def get_entity_names(path: str):
+    entities = read_first_n_from_json_gz(path)
+    names = [entity['name'] for entity in entities]
+    return names
+
+
+def get_entity_name_id_pairs(path: str):
+    entities = read_first_n_from_json_gz(path)
+    name_id_pairs = [(entity['name'], entity['id']) for entity in entities]
+    return name_id_pairs
 
 
 # function to get an entry by id

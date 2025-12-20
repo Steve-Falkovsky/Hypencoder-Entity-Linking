@@ -52,10 +52,14 @@ def load_model(model_config: HypencoderModelConfig):
     )
 
     if model_config.checkpoint_path is not None:
+        print("\n\n\n\nMODEL\n\n\n\n")
+        # print(model_config.checkpoint_path)
         model = model_cls.from_pretrained(
             model_config.checkpoint_path, config=config
         )
+        print(model)
     else:
+        # print('AAAA\nAAAA\n\n\n\n')
         model = model_cls(config)
 
     return model
@@ -120,7 +124,7 @@ def get_collator(
 ):
     return GeneralDualEncoderCollator(
         tokenizer=tokenizer,
-        num_negatives_to_sample=data_config.num_items_to_sample,
+        num_negatives_to_sample=data_config.num_negatives_to_sample,
         positive_filter=data_config.positive_filter_type,
         positive_filter_kwargs=data_config.positive_filter_kwargs,
         positive_sampler="random",
@@ -143,9 +147,13 @@ def train_model(cfg: HypencoderTrainingConfig):
 
     training_data, validation_data = load_data(cfg.data_config)
     tokenizer = load_tokenizer(cfg.model_config)
+    
     model = load_model(cfg.model_config)
+    print("Model loaded\n")
+    
     collator = get_collator(cfg.data_config, cfg.trainer_config, tokenizer)
-
+    print("data collated\n")
+    
     train_arguments_kwargs = None
     hf_trainer_config = cfg.trainer_config.hf_trainer_config
 
@@ -157,6 +165,8 @@ def train_model(cfg: HypencoderTrainingConfig):
     training_args = TrainingArguments(
         **train_arguments_kwargs,
     )
+    
+    print("training arguments loaded\n")
 
     trainer = Trainer(
         model=model,

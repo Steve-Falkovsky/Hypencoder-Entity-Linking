@@ -4,3 +4,4 @@ third_party/
 corpora_sources/
 processed_sources/
 sandbox.py
+.ds_store
