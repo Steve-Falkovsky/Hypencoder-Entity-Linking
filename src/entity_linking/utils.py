@@ -1,16 +1,22 @@
+from pathlib import Path
 import gzip
 import random
 import bioc
 import json
 
+# Project directories (resolve paths independently of the current working directory)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_RAW = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+
 # apparently .gz and .tar.gz are different things
 # this is a tar archive
 # source = "example_bioc_files.tar.gz"
 # this is a gzip-compressed (.gz) single file
-# BC5CDR = "processed_sources/bc5cdr_train.bioc.xml.gz"  # the source path is determined by pwd
+# Example: DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz"
 
 
-def extract_first_n_docs(path: str, n: int | None = None):
+def extract_first_n_docs(path: str | Path, n: int | None = None):
     """
     Read a gzipped BioC XML file at `path` and return a list with info for the first `n` documents.
     If n is None (default), return info for all documents.
@@ -48,7 +54,7 @@ def extract_first_n_docs(path: str, n: int | None = None):
 
 
 # get names
-def get_mention_names(path: str):
+def get_mention_names(path: str | Path):
     docs = extract_first_n_docs(path)
     names = []
     for doc in docs:
@@ -58,7 +64,7 @@ def get_mention_names(path: str):
     return names
 
 
-def get_mention_names_id_pairs(path: str):
+def get_mention_names_id_pairs(path: str | Path):
     """
     Get list of tuples (mention name, id) pairs from BC5CDR BioC XML file at `path`.
     """
@@ -71,9 +77,9 @@ def get_mention_names_id_pairs(path: str):
     return name_id_pairs
 
 
-# mesh = "processed_sources/mesh2015.json.gz"
+# Example: DATA_PROCESSED / "mesh2015.json.gz"
 
-def read_first_n_from_json_gz(path: str, n: int | None = None) -> list:
+def read_first_n_from_json_gz(path: str | Path, n: int | None = None) -> list:
     """
     Read a gzipped JSON file at `path` and return the first `n` elements if the top-level
     JSON value is a list. If n is None (default), return all entries.
@@ -92,13 +98,13 @@ def read_first_n_from_json_gz(path: str, n: int | None = None) -> list:
 
 
 # get entity names
-def get_entity_names(path: str):
+def get_entity_names(path: str | Path):
     entities = read_first_n_from_json_gz(path)
     names = [entity['name'] for entity in entities]
     return names
 
 
-def get_entity_name_id_pairs(path: str):
+def get_entity_name_id_pairs(path: str | Path):
     entities = read_first_n_from_json_gz(path)
     name_id_pairs = [(entity['name'], entity['id']) for entity in entities]
     return name_id_pairs

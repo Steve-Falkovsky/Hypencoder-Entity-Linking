@@ -26,10 +26,11 @@ we already have JSONL files with format:
 
 so we need to convert them to the desired format
 """
+from pathlib import Path
 import json
-from utils import *
+from .utils import DATA_PROCESSED
 
-def convert_to_contrastive_format(input_jsonl_path: str, output_jsonl_path: str):
+def convert_to_contrastive_format(input_jsonl_path: str | Path, output_jsonl_path: str | Path):
     output = []
     with open(input_jsonl_path, 'r', encoding='utf-8') as f:
         for line in f:
@@ -61,6 +62,15 @@ def convert_to_contrastive_format(input_jsonl_path: str, output_jsonl_path: str)
             f.write('\n')
             
             
-convert_to_contrastive_format("my_stuff/processed_sources/name_only_train.jsonl", "my_stuff/processed_sources/bc5cdr_train_hypencoder_contrastive.jsonl")
-convert_to_contrastive_format("my_stuff/processed_sources/name_only_val.jsonl", "my_stuff/processed_sources/bc5cdr_val_hypencoder_contrastive.jsonl")
-convert_to_contrastive_format("my_stuff/processed_sources/name_only_test.jsonl", "my_stuff/processed_sources/bc5cdr_test_hypencoder_contrastive.jsonl")
+convert_to_contrastive_format(
+  DATA_PROCESSED / "name_only_train.jsonl",
+  DATA_PROCESSED / "bc5cdr_train_hypencoder_contrastive.jsonl",
+)
+convert_to_contrastive_format(
+  DATA_PROCESSED / "name_only_val.jsonl",
+  DATA_PROCESSED / "bc5cdr_val_hypencoder_contrastive.jsonl",
+)
+convert_to_contrastive_format(
+  DATA_PROCESSED / "name_only_test.jsonl",
+  DATA_PROCESSED / "bc5cdr_test_hypencoder_contrastive.jsonl",
+)

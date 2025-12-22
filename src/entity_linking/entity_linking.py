@@ -19,10 +19,10 @@
 # do this in jupyter notebook because this will need to scale anyway and I don't have the compute power for it
 
 
-from my_stuff.utils import *
+from .utils import DATA_PROCESSED, extract_first_n_docs, read_first_n_from_json_gz
 
 # BC5CDR input 
-docs = extract_first_n_docs("processed_sources/bc5cdr_train.bioc.xml.gz", 50)
+docs = extract_first_n_docs(DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz", 50)
 
 # concatenate title and abstract
 texts = [doc['passages'][0]['text'] +  doc['passages'][0]['text'] for doc in docs]
@@ -34,7 +34,7 @@ texts = [doc['passages'][0]['text'] +  doc['passages'][0]['text'] for doc in doc
 # (not sure how helpful it is to include aliases if we have 2 different entities that share an alias)
 
 # for now do option 1 (name + definition)
-entities = read_first_n_from_json_gz("processed_sources/mesh2015.json.gz")
+entities = read_first_n_from_json_gz(DATA_PROCESSED / "mesh2015.json.gz")
 entities = [entity['name'] + entity['definition'] for entity in entities]
 
 

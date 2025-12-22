@@ -1,4 +1,6 @@
-from utils import *
+from pathlib import Path
+import json
+from .utils import DATA_PROCESSED, get_mention_names_id_pairs, get_entity_name_id_pairs
 
 """
 desired output:
@@ -9,7 +11,7 @@ desired output:
 
 
 # convert to JSONL - we want to create 3 differnent datasets, one for train, val, test
-def toJSONL(split_path: str, output_path: str):
+def toJSONL(split_path: str | Path, output_path: str | Path):
 
     # get name and id
     # BC5CDR input  (mention name,id)
@@ -19,7 +21,7 @@ def toJSONL(split_path: str, output_path: str):
     unique_mention_name_id_pairs = list(set(bc5cdr_name_id_pairs))
 
     # MeSH2015 input (entity name,id)
-    mesh_name_id_pairs = get_entity_name_id_pairs("my_stuff/processed_sources/mesh2015.json.gz")
+    mesh_name_id_pairs = get_entity_name_id_pairs(DATA_PROCESSED / "mesh2015.json.gz")
 
     # pair[1] is id, pair[0] is the name
     mesh_pairs_dict = {pair[1]: pair[0] for pair in mesh_name_id_pairs}
@@ -35,7 +37,7 @@ def toJSONL(split_path: str, output_path: str):
             f.write('\n') # add newline for JSONL format
 
 
-toJSONL("my_stuff/processed_sources/bc5cdr_train.bioc.xml.gz", "my_stuff/processed_sources/bc5cdr_train.jsonl")
-toJSONL("my_stuff/processed_sources/bc5cdr_test.bioc.xml.gz", "my_stuff/processed_sources/bc5cdr_test.jsonl")
-toJSONL("my_stuff/processed_sources/bc5cdr_val.bioc.xml.gz", "my_stuff/processed_sources/bc5cdr_val.jsonl")
+toJSONL(DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz", DATA_PROCESSED / "bc5cdr_train.jsonl")
+toJSONL(DATA_PROCESSED / "bc5cdr_test.bioc.xml.gz", DATA_PROCESSED / "bc5cdr_test.jsonl")
+toJSONL(DATA_PROCESSED / "bc5cdr_val.bioc.xml.gz", DATA_PROCESSED / "bc5cdr_val.jsonl")
 

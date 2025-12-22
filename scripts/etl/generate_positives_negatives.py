@@ -1,11 +1,21 @@
-from my_stuff.utils import *
+from pathlib import Path
+import sys
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.append(str(REPO_ROOT / "src"))
+
+from entity_linking.utils import (
+    DATA_PROCESSED,
+    get_entity_name_id_pairs,
+    get_mention_names_id_pairs,
+)
 
 # BC5CDR input  (mention names and ids)
-bc5cdr_name_id_pairs = get_mention_names_id_pairs("processed_sources/bc5cdr_train.bioc.xml.gz")
+bc5cdr_name_id_pairs = get_mention_names_id_pairs(DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz")
 
 
 # MeSH2015 input (entity names and ids)
-mesh_name_id_pairs = get_entity_name_id_pairs("processed_sources/mesh2015.json.gz")
+mesh_name_id_pairs = get_entity_name_id_pairs(DATA_PROCESSED / "mesh2015.json.gz")
 
 # constructing positive pairs
 # take all mention names and get the corresponding entity name by matching the id
@@ -55,6 +65,6 @@ def save_json_gz(data, filepath):
     with gzip.open(filepath, 'wt', encoding='utf-8') as zipfile:
         json.dump(data, zipfile)
         
-save_json_gz(train_pairs, "processed_sources/pairs/mention_entity_name_only_linking_train.json.gz")
-save_json_gz(val_pairs, "processed_sources/pairs/mention_entity_name_only_linking_val.json.gz")
-save_json_gz(test_pairs, "processed_sources/pairs/mention_entity_name_only_linking_test.json.gz")
+save_json_gz(train_pairs, DATA_PROCESSED / "pairs/mention_entity_name_only_linking_train.json.gz")
+save_json_gz(val_pairs, DATA_PROCESSED / "pairs/mention_entity_name_only_linking_val.json.gz")
+save_json_gz(test_pairs, DATA_PROCESSED / "pairs/mention_entity_name_only_linking_test.json.gz")

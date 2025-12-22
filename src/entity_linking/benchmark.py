@@ -5,19 +5,19 @@
 # to start let's just consider top 1
 # if correct +1, if not 0
 
-from utils import *
+from .utils import DATA_PROCESSED, get_mention_names_id_pairs, get_entity_name_id_pairs, get_entry_by_id
 
 # get only names
-# mention_names = get_mention_names("processed_sources/bc5cdr_train.bioc.xml.gz")
-# entity_names = get_entity_names("processed_sources/mesh2015.json.gz")
+# mention_names = get_mention_names(DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz")
+# entity_names = get_entity_names(DATA_PROCESSED / "mesh2015.json.gz")
 
 
 # get name and id
 # BC5CDR input  (mention names and ids)
-bc5cdr_name_id_pairs = get_mention_names_id_pairs("processed_sources/bc5cdr_train.bioc.xml.gz")
+bc5cdr_name_id_pairs = get_mention_names_id_pairs(DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz")
 
 # MeSH2015 input (entity names and ids)
-mesh_name_id_pairs = get_entity_name_id_pairs("processed_sources/mesh2015.json.gz")
+mesh_name_id_pairs = get_entity_name_id_pairs(DATA_PROCESSED / "mesh2015.json.gz")
 
 
 # Core SapBert model for outputing dense vector representations 

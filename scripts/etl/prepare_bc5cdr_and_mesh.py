@@ -1,39 +1,53 @@
 from bioc import biocxml
+from pathlib import Path
 import gzip
 import argparse
-import os
 import json
 import xml.etree.ElementTree as ET
 
 
 
 """
-Command to run this:
-python ../scripts/prepare_bc5cdr_and_mesh.py --bc5cdr_dir corpora_sources/CDR_Data/CDR.Corpus.v010516 --mesh2015_dir corpora_sources/mesh2015 --out_train bc5cdr_train.bioc.xml.gz --out_val bc5cdr_val.bioc.xml.gz --out_test bc5cdr_test.bioc.xml.gz --out_ontology mesh2015.json.gz
+Command to run this (defaults assume data/raw/corpora_sources is populated by fetch_bc5cdr_sources.sh):
+python scripts/etl/prepare_bc5cdr_and_mesh.py --bc5cdr_dir data/raw/corpora_sources/CDR_Data/CDR.Corpus.v010516 --mesh2015_dir data/raw/corpora_sources/mesh2015 --out_train data/processed/bc5cdr_train.bioc.xml.gz --out_val data/processed/bc5cdr_val.bioc.xml.gz --out_test data/processed/bc5cdr_test.bioc.xml.gz --out_ontology data/processed/mesh2015.json.gz
 
 """
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DATA_RAW = REPO_ROOT / "data" / "raw"
+DATA_PROCESSED = REPO_ROOT / "data" / "processed"
+
+DEFAULT_BC5CDR_DIR = DATA_RAW / "corpora_sources/CDR_Data/CDR.Corpus.v010516"
+DEFAULT_MESH2015_DIR = DATA_RAW / "corpora_sources/mesh2015"
+DEFAULT_OUT_TRAIN = DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz"
+DEFAULT_OUT_VAL = DATA_PROCESSED / "bc5cdr_val.bioc.xml.gz"
+DEFAULT_OUT_TEST = DATA_PROCESSED / "bc5cdr_test.bioc.xml.gz"
+DEFAULT_OUT_ONTOLOGY = DATA_PROCESSED / "mesh2015.json.gz"
 
 
 def main():
     parser = argparse.ArgumentParser(description='Convert BC5CDR corpus to BioCXML and set up a matching MeSH ontology')
-    parser.add_argument('--bc5cdr_dir',required=True,type=str,help='Directory with source NCBI Disease corpus files')
-    parser.add_argument('--mesh2015_dir',required=True,type=str,help='Directory containing MeSH 2015 XML files')
-    parser.add_argument('--out_train',required=True,type=str,help='Output Gzipped BioC XML for training data')
-    parser.add_argument('--out_val',required=True,type=str,help='Output Gzipped BioC XML for validation data')
-    parser.add_argument('--out_test',required=True,type=str,help='Output Gzipped BioC XML for test data')
-    parser.add_argument('--out_ontology',required=True,type=str,help='Output Gzipped JSON file with MeSH ontology')
+    parser.add_argument('--bc5cdr_dir',default=DEFAULT_BC5CDR_DIR,type=Path,help='Directory with source NCBI Disease corpus files')
+    parser.add_argument('--mesh2015_dir',default=DEFAULT_MESH2015_DIR,type=Path,help='Directory containing MeSH 2015 XML files')
+    parser.add_argument('--out_train',default=DEFAULT_OUT_TRAIN,type=Path,help='Output Gzipped BioC XML for training data')
+    parser.add_argument('--out_val',default=DEFAULT_OUT_VAL,type=Path,help='Output Gzipped BioC XML for validation data')
+    parser.add_argument('--out_test',default=DEFAULT_OUT_TEST,type=Path,help='Output Gzipped BioC XML for test data')
+    parser.add_argument('--out_ontology',default=DEFAULT_OUT_ONTOLOGY,type=Path,help='Output Gzipped JSON file with MeSH ontology')
     args = parser.parse_args()
-
-    assert os.path.isdir(args.bc5cdr_dir)
+    
+    if not args.bc5cdr_dir.is_dir():
+        parser.error(f"BC5CDR directory not found: {args.bc5cdr_dir}")
+    if not args.mesh2015_dir.is_dir():
+        parser.error(f"MeSH2015 directory not found: {args.mesh2015_dir}")
 
 
     # ----------------- BC5CDR processing -----------------
     print("Loading documents...")
-    with open(f'{args.bc5cdr_dir}/CDR_TrainingSet.BioC.xml') as f:
+    with open(args.bc5cdr_dir / 'CDR_TrainingSet.BioC.xml') as f:
         train_collection = biocxml.load(f)
-    with open(f'{args.bc5cdr_dir}/CDR_DevelopmentSet.BioC.xml') as f:
+    with open(args.bc5cdr_dir / 'CDR_DevelopmentSet.BioC.xml') as f:
         val_collection = biocxml.load(f)
-    with open(f'{args.bc5cdr_dir}/CDR_TestSet.BioC.xml') as f:
+    with open(args.bc5cdr_dir / 'CDR_TestSet.BioC.xml') as f:
         test_collection = biocxml.load(f)
 
     print("Reformatting BioC XML annotations...")
@@ -54,7 +68,7 @@ def main():
     ontology = []
 
     print("Loading MeSH descriptors...")
-    tree = ET.parse(f"{args.mesh2015_dir}/desc2015.xml")
+    tree = ET.parse(args.mesh2015_dir / "desc2015.xml")
     root = tree.getroot()
     for record in root.findall("DescriptorRecord"):
         record_ui = record.find("DescriptorUI").text
@@ -74,7 +88,7 @@ def main():
         ontology.append(entity)
     
     print("Loading MeSH supplementary concepts...")
-    tree = ET.parse(f"{args.mesh2015_dir}/supp2015.xml")
+    tree = ET.parse(args.mesh2015_dir / "supp2015.xml")
     root = tree.getroot()
     for record in root.findall("SupplementalRecord"):
         record_ui = record.find("SupplementalRecordUI").text

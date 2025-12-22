@@ -1,4 +1,4 @@
-from my_stuff.utils import extract_first_n_docs, get_entry_by_id, read_first_n_from_json_gz
+from .utils import DATA_PROCESSED, extract_first_n_docs, get_entry_by_id, read_first_n_from_json_gz
 
 # Load model directly
 from transformers import AutoTokenizer, AutoModel
@@ -7,7 +7,7 @@ model_name = "cambridgeltl/SapBERT-from-PubMedBERT-fulltext"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModel.from_pretrained(model_name)
 
-docs = extract_first_n_docs("processed_sources/bc5cdr_train.bioc.xml.gz", 5)
+docs = extract_first_n_docs(DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz", 5)
 
 # get only the text of the passages
 texts = [passage['text'] for doc in docs for passage in doc['passages']]
@@ -24,7 +24,7 @@ for i in range(n):
 
 # Match BC5CDR to Mesh IDs
 # read all mesh data, then use the id from the BC5CDR entry to get the corresponding mesh term
-mesh_data = read_first_n_from_json_gz("processed_sources/mesh2015.json.gz", None)
+mesh_data = read_first_n_from_json_gz(DATA_PROCESSED / "mesh2015.json.gz", None)
 
 
 # take annotations from first n passages and match to mesh terms
