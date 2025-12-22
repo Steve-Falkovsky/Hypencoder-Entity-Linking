@@ -1,0 +1,59 @@
+model_config:
+  checkpoint_path: jfkback/hypencoder.2_layer
+  tokenizer_pretrained_model_name_or_path: google-bert/bert-base-uncased
+
+  query_encoder_kwargs:
+    model_name_or_path: google-bert/bert-base-uncased
+    freeze_transformer: false
+    embedding_representation: null
+    base_encoder_output_dim: 768
+    converter_kwargs:
+      vector_dimensions: [768, 768, 768, 1]
+      activation_type: relu
+      do_residual_on_last: false
+
+  passage_encoder_kwargs:
+    model_name_or_path: google-bert/bert-base-uncased
+    freeze_transformer: false
+    pooling_type: cls
+
+  shared_encoder: true
+  loss_type: [cross_entropy]
+  loss_kwargs:
+    - { use_in_batch_negatives: true, only_use_first_item: false }
+
+
+
+data_config:
+  training_data_jsonl: data/train_tokenized.jsonl
+  validation_data_jsonl: data/val_tokenized.jsonl
+  positive_filter_type: first
+  label_key: null
+  num_positives_to_sample: 1
+  num_negatives_to_sample: 0
+
+
+
+trainer_config:
+  hf_trainer_config:
+    output_dir: model/hypencoder.2_layer_finetuned_BC5CDR
+    overwrite_output_dir: true
+    remove_unused_columns: false
+    eval_strategy: "no"
+
+    per_device_train_batch_size: 8
+    gradient_accumulation_steps: 4
+
+    learning_rate: 2.0e-05
+    lr_scheduler_type: constant_with_warmup
+    warmup_steps: 0
+
+    fp16: true
+    bf16: false
+    tf32: false
+
+    logging_steps: 10
+    save_strategy: steps
+    save_steps: 500
+
+  resume_from_checkpoint: false 
