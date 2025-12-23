@@ -56,4 +56,7 @@ trainer_config:
     save_strategy: steps
     save_steps: 500
 
+    report_to: none
+    save_safetensors: false
+
   resume_from_checkpoint: false 
