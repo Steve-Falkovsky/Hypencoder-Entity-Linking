@@ -41,10 +41,10 @@ trainer_config:
     dataloader_persistent_workers: false
     learning_rate: 2.0e-05
     weight_decay: 0.0
-    num_train_epochs: 1
-    lr_scheduler_type: constant_with_warmup
-    warmup_ratio: 0.0
-    warmup_steps: 6000
+    num_train_epochs: 10
+    lr_scheduler_type: linear
+    warmup_ratio: 0.1
+    warmup_steps: 0
     logging_strategy: steps
     logging_steps: 10
     # max_steps: 1000000 # overrides num_train_epochs
@@ -74,4 +74,4 @@ trainer_config:
     adam_beta2: 0.999
     adam_epsilon: 1.0e-08
     torch_compile: false
-  resume_from_checkpoint: true
+  resume_from_checkpoint: false
