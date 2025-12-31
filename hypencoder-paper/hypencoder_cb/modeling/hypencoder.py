@@ -18,7 +18,7 @@ from hypencoder_cb.modeling.similarity_and_losses import (
     HypencoderMarginMSELoss,
 )
 
-
+# The attention mechanism layer
 def scaled_dot_product_attention(
     query: torch.Tensor,
     key: torch.Tensor,
@@ -26,14 +26,23 @@ def scaled_dot_product_attention(
     dim: int,
     mask: Optional[torch.Tensor] = None,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-    score = torch.einsum("bqd,bkd->bqk", query, key) / math.sqrt(dim)
+    
+    # MatMul 
+    score = torch.einsum("bqd,bkd->bqk", query, key) 
+    
+    # Scale
+    scaled_score = score / math.sqrt(dim) 
 
+    # applying mask
     if mask is not None:
-        score.masked_fill_(mask.unsqueeze(1) == 0, -float("Inf"))
+        scaled_score.masked_fill_(mask.unsqueeze(1) == 0, -float("Inf"))   
 
-    attention = F.softmax(score, -1)
-
-    context = torch.einsum("bqk,bkd->bqd", [attention, value])
+    # softmax
+    attention = F.softmax(scaled_score, -1) # -1 for auto
+    
+    # final MatMul
+    context = torch.einsum("bqk,bkd->bqd", attention, value)
+    
     return context, attention
 
 

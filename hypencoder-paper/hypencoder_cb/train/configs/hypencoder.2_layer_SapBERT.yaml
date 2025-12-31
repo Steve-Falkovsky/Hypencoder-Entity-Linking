@@ -1,5 +1,4 @@
 model_config:
-  checkpoint_path: jfkback/hypencoder.2_layer
   tokenizer_pretrained_model_name_or_path: cambridgeltl/SapBERT-from-PubMedBERT-fulltext
   query_encoder_kwargs:
     model_name_or_path: cambridgeltl/SapBERT-from-PubMedBERT-fulltext

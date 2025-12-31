@@ -45,7 +45,7 @@ class NoTorchLinear:
         Args:
             x (torch.Tensor): Input vectors with the shape:
                 (num_queries, num_items_per_query, input_hidden_size)
-
+                                
         Returns:
             torch.Tensor: Output vectors with the shape:
                 (num_queries, num_items_per_query, output_hidden_size)
@@ -153,7 +153,7 @@ def activation_factory(
 class RepeatedDenseBlockConverter:
     def __init__(
         self,
-        vector_dimensions: List[int],
+        vector_dimensions: List[int], # how many nodes each layer has, e.g. for 2 hidden layer model [768, 768, 768, 1]
         activation_type: str = "relu",
         do_dropout: bool = False,
         dropout_prob: float = 0.1,
@@ -269,7 +269,7 @@ class RepeatedDenseBlockConverter:
 
         layers.append(
             NoTorchLinear(
-                weight=matrices[-1],
+                weight=matrices[-1], # the weight for the last layer (for each of the queries)
             )
         )
 
