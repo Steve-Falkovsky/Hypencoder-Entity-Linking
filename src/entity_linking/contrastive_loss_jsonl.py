@@ -28,7 +28,7 @@ so we need to convert them to the desired format
 """
 from pathlib import Path
 import json
-from .utils import DATA_PROCESSED
+from utils import DATA_PROCESSED
 
 def convert_to_contrastive_format(input_jsonl_path: str | Path, output_jsonl_path: str | Path):
     output = []

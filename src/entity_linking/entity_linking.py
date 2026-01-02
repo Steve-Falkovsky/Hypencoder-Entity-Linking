@@ -19,7 +19,7 @@
 # do this in jupyter notebook because this will need to scale anyway and I don't have the compute power for it
 
 
-from .utils import DATA_PROCESSED, extract_first_n_docs, read_first_n_from_json_gz
+from utils import DATA_PROCESSED, extract_first_n_docs, read_first_n_from_json_gz
 
 # BC5CDR input 
 docs = extract_first_n_docs(DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz", 50)

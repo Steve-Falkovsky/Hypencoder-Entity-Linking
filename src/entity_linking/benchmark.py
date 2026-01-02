@@ -5,7 +5,7 @@
 # to start let's just consider top 1
 # if correct +1, if not 0
 
-from .utils import DATA_PROCESSED, get_mention_names_id_pairs, get_entity_name_id_pairs, get_entry_by_id
+from utils import DATA_PROCESSED, get_mention_names_id_pairs, get_entity_name_id_pairs, get_entry_by_id
 
 # get only names
 # mention_names = get_mention_names(DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz")

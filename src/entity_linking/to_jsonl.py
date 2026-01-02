@@ -1,6 +1,6 @@
 from pathlib import Path
 import json
-from .utils import DATA_PROCESSED, get_mention_names_id_pairs, get_entity_name_id_pairs
+from utils import DATA_PROCESSED, get_mention_names_id_pairs, get_entity_name_id_pairs
 
 """
 desired output:
@@ -36,8 +36,8 @@ def toJSONL(split_path: str | Path, output_path: str | Path):
             json.dump(entry, f)
             f.write('\n') # add newline for JSONL format
 
-
-toJSONL(DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz", DATA_PROCESSED / "bc5cdr_train.jsonl")
-toJSONL(DATA_PROCESSED / "bc5cdr_test.bioc.xml.gz", DATA_PROCESSED / "bc5cdr_test.jsonl")
-toJSONL(DATA_PROCESSED / "bc5cdr_val.bioc.xml.gz", DATA_PROCESSED / "bc5cdr_val.jsonl")
+if __name__ == "__main__":
+    toJSONL(DATA_PROCESSED / "bc5cdr_train.bioc.xml.gz", DATA_PROCESSED / "bc5cdr_train.jsonl")
+    toJSONL(DATA_PROCESSED / "bc5cdr_test.bioc.xml.gz", DATA_PROCESSED / "bc5cdr_test.jsonl")
+    toJSONL(DATA_PROCESSED / "bc5cdr_val.bioc.xml.gz", DATA_PROCESSED / "bc5cdr_val.jsonl")
 

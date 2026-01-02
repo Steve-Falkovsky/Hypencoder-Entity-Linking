@@ -1,10 +1,7 @@
 from pathlib import Path
 import sys
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-sys.path.append(str(REPO_ROOT / "src"))
-
-from entity_linking.utils import (
+from .utils import (
     DATA_PROCESSED,
     get_entity_name_id_pairs,
     get_mention_names_id_pairs,

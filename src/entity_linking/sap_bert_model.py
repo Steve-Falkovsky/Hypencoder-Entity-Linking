@@ -1,4 +1,4 @@
-from .utils import DATA_PROCESSED, extract_first_n_docs, get_entry_by_id, read_first_n_from_json_gz
+from utils import DATA_PROCESSED, extract_first_n_docs, get_entry_by_id, read_first_n_from_json_gz
 
 # Load model directly
 from transformers import AutoTokenizer, AutoModel
