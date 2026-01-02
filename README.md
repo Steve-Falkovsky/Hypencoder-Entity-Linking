@@ -28,11 +28,10 @@ This project demonstrates the following:
 ## 📁 Repository Structure
 
 ```text
-├── hypencoder-paper/          # Core Hypencoder implementation and research code
+├── hypencoder-paper/          # Core Hypencoder implementation, training configs (for creating your own models)
 ├── src/entity_linking/        # Custom EL logic, models, and benchmarking tools
 ├── scripts/etl/               # Data processing for BC5CDR and MeSH sources
 ├── notebooks/                 # Experimental results and SapBERT vs. Hypencoder comparisons
-└── train/configs/             # YAML configurations for various layer depths (2 to 8 layers)
 
 ```
 
@@ -48,12 +47,16 @@ cd hypencoder-entity-linking
 
 ```
 
+### Create and activate your virtual Environment (Optional, but recommended)
+```bash
+python3 -m venv .venv
+source .venv/bin/activate 
+```
+
 ### 2. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
-pip install -e ./hypencoder-paper
-
 ```
 
 ---
@@ -79,6 +82,30 @@ python hypencoder_cb/train/train.py --config hypencoder_cb/train/configs/hypenco
 Also, refer to the original paper's repo for more details: https://github.com/jfkback/hypencoder-paper
 
 ---
+
+## End to end pipeline
+### Get BC5CDR data
+```bash
+./scripts/etl/fetch_bc5cdr_sources.sh
+```
+
+### Process and format the data (incuding MeSH2015)
+```bash
+python scripts/etl/prepare_bc5cdr_and_mesh.py --bc5cdr_dir data/raw/corpora_sources/CDR_Data/CDR.Corpus.v010516 --mesh2015_dir data/raw/corpora_sources/mesh2015 --out_train data/processed/bc5cdr_train.bioc.xml.gz --out_val data/processed/bc5cdr_val.bioc.xml.gz --out_test data/processed/bc5cdr_test.bioc.xml.gz --out_ontology data/processed/mesh2015.json.gz
+```
+
+### Now you can create your own datasets:
+Examples for scripts are:
+`src/entity_linking/nameonly_to_jsonl.py`
+`src/entity_linking/contrastive_loss_jsonl.py`
+
+### Create your own models by:
+1. Creating a configuration by modifying a .YAML config file such as `hypencoder-paper/hypencoder_cb/train/configs/hypencoder.2_layer_finetuned_BC5CDR.yaml`
+2. Training the model using the relevant notebook such as `notebooks/fine_tune_Hypencoder_on_BC5CDR.ipynb`
+
+
+---
+
 
 ## 📊 Key Findings & Results
 
