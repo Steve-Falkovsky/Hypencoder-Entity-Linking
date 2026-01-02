@@ -1,8 +1,11 @@
-attrs==25.4.0
 bioc==2.1
-docopt==0.6.2
-intervaltree==3.1.0
 jsonlines==4.0.0
 lxml==6.0.2
-sortedcontainers==2.4.0
 tqdm==4.67.1
+transformers==4.57.1
+scikit-learn==1.7.2
+torch==2.2.2
+datasets==4.4.1
+fire==0.7.1
+omegaconf==2.3.0
+huggingface-hub==0.35.3
