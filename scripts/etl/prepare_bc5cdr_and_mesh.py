@@ -40,6 +40,10 @@ def main():
     if not args.mesh2015_dir.is_dir():
         parser.error(f"MeSH2015 directory not found: {args.mesh2015_dir}")
 
+    # Ensure output directories exist (e.g., data/processed)
+    for out_path in (args.out_train, args.out_val, args.out_test, args.out_ontology):
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+
 
     # ----------------- BC5CDR processing -----------------
     print("Loading documents...")
