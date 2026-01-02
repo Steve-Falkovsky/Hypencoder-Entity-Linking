@@ -1,7 +1,4 @@
-from pathlib import Path
-import sys
-
-from .utils import (
+from utils import (
     DATA_PROCESSED,
     get_entity_name_id_pairs,
     get_mention_names_id_pairs,
