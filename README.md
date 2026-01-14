@@ -114,17 +114,38 @@ In progress...
 
 ## 📜 Citation & Credits
 
-This project builds upon the work of Julian Killingback, Hansi Zeng, and Hamed Zamani.
+This project builds upon the work of Julian Killingback, Hansi Zeng, and Hamed Zamani on Hypencoders.
 
 ```bibtex
-@misc{killingback2025hypencoderhypernetworksinformationretrieval,
-      title={Hypencoder: Hypernetworks for Information Retrieval}, 
-      author={Julian Killingback and Hansi Zeng and Hamed Zamani},
-      year={2025},
-      eprint={2502.05364},
-      archivePrefix={arXiv},
-      primaryClass={cs.IR},
-      url={https://arxiv.org/abs/2502.05364}, 
+@inproceedings{hypencoder,
+    author = {Killingback, Julian and Zeng, Hansi and Zamani, Hamed},
+    title = {Hypencoder: Hypernetworks for Information Retrieval},
+    year = {2025},
+    isbn = {9798400715921},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/3726302.3729983},
+    doi = {10.1145/3726302.3729983},
+    booktitle = {Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval},
+    pages = {2372–2383},
+    numpages = {12},
+    keywords = {learning to rank, neural ranking models, retrieval models},
+    location = {Padua, Italy},
+    series = {SIGIR '25}
+}
+
+```
+
+This project uses data extraction pipelines from work of Javier Sanz-Cruzado and Jake Lever. 
+```bibtex
+@inproceedings{
+    title = {Accelerating Cross-Encoders in Biomedical Entity Linking},
+    author = {Sanz-Cruzado, Javier and Lever, Jake},
+    booktitle = {Proceedings of the 24th Workshop on Biomedical Language Processing},
+    month = {jul},
+    year = {2025},
+    address = {Vienna, Austria},
+    publisher = {Association for Computational Linguistics},
 }
 
 ```
