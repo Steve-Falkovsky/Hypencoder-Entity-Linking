@@ -5,7 +5,30 @@ from typing import Dict, List, Optional, Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from transformers import AutoModel, PretrainedConfig, PreTrainedModel
+from transformers import AutoConfig, AutoModel, PretrainedConfig, PreTrainedModel
+
+
+def _safe_automodel_from_pretrained(model_name_or_path: str) -> torch.nn.Module:
+        """Load a base transformer model safely.
+
+        Why this exists:
+        - When a top-level model is loaded with Transformers+Accelerate using
+            an empty-weights/meta-device init (for low-memory loading), calling
+            another nested `from_pretrained()` inside `__init__` raises a
+            RuntimeError.
+        - In that situation we should instantiate from config and let the
+            outer `from_pretrained()` call load the actual weights from the
+            checkpoint.
+        """
+
+        try:
+                return AutoModel.from_pretrained(model_name_or_path)
+        except RuntimeError as e:
+                msg = str(e)
+                if "meta device context manager" in msg or "torch.set_default_device('meta')" in msg:
+                        base_cfg = AutoConfig.from_pretrained(model_name_or_path)
+                        return AutoModel.from_config(base_cfg)
+                raise
 
 from hypencoder_cb.modeling.q_net import RepeatedDenseBlockConverter
 from hypencoder_cb.modeling.shared import (
@@ -90,7 +113,7 @@ class Hypencoder(PreTrainedModel):
 
     def __init__(self, config: HypencoderConfig) -> None:
         super(Hypencoder, self).__init__(config)
-        self.transformer = AutoModel.from_pretrained(config.model_name_or_path)
+        self.transformer = _safe_automodel_from_pretrained(config.model_name_or_path)
         self.weight_to_model_converter = RepeatedDenseBlockConverter(
             **config.converter_kwargs
         )
@@ -103,6 +126,9 @@ class Hypencoder(PreTrainedModel):
         self.bias_shapes = self.weight_to_model_converter.bias_shapes
 
         self._initialize_hyper_head()
+        # Initializes/records tied weights metadata expected by newer Transformers
+        # and applies any final setup hooks.
+        self.post_init()
 
     def _initialize_hyper_head(self) -> None:
         torch.manual_seed(1)
@@ -344,7 +370,7 @@ class TextEncoder(PreTrainedModel):
 
     def __init__(self, config: TextEncoderConfig) -> None:
         super(TextEncoder, self).__init__(config)
-        self.transformer = AutoModel.from_pretrained(config.model_name_or_path)
+        self.transformer = _safe_automodel_from_pretrained(config.model_name_or_path)
         self.pooling_type = config.pooling_type
 
         if config.freeze_transformer:
@@ -355,6 +381,8 @@ class TextEncoder(PreTrainedModel):
             self.pool = self.mean_pool
         elif self.pooling_type == "cls":
             self.pool = self.cls_pool
+
+        self.post_init()
 
     def mean_pool(self, last_hidden_state, attention_mask):
         return last_hidden_state.sum(dim=1) / attention_mask.sum(
@@ -396,6 +424,8 @@ class HypencoderDualEncoder(BaseDualEncoder):
         if config.shared_encoder:
             self.passage_encoder.transformer = self.query_encoder.transformer
 
+        self.post_init()
+
     def _get_similarity_loss(self, config: BaseDualEncoderConfig):
         self.similarity_losses = []
 
@@ -430,3 +460,5 @@ class TextDualEncoder(BaseDualEncoder):
 
         if config.shared_encoder:
             self.passage_encoder = self.query_encoder
+
+        self.post_init()
