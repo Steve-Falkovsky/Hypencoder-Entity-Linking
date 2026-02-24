@@ -2,7 +2,12 @@ import os
 from typing import Optional
 
 import fire
-from datasets import load_dataset
+from datasets import (
+    DatasetDict,
+    IterableDatasetDict,
+    load_dataset,
+    load_from_disk,
+)
 from omegaconf import OmegaConf
 from transformers import AutoTokenizer, Trainer, TrainingArguments
 
@@ -68,21 +73,26 @@ def load_model(model_config: HypencoderModelConfig):
 def load_data(data_config: HypencoderDataConfig):
     cache_dir = os.environ.get("HF_HOME", DEFAULT_CACHE_DIR)
 
-    if (data_config.training_data_jsonl is None) == (
-        data_config.training_huggingface_dataset is None
-    ):
+    training_sources = [
+        data_config.training_data_jsonl is not None,
+        data_config.training_huggingface_dataset is not None,
+        data_config.training_huggingface_disk_path is not None,
+    ]
+    if sum(training_sources) != 1:
         raise ValueError(
-            "Must specify either training_data_jsonl or"
-            " training_huggingface_dataset"
+            "Must specify exactly one of training_data_jsonl, "
+            "training_huggingface_dataset, or training_huggingface_disk_path"
         )
 
-    if (
-        data_config.validation_data_jsonl is not None
-        and data_config.validation_huggingface_dataset is not None
-    ):
+    validation_sources = [
+        data_config.validation_data_jsonl is not None,
+        data_config.validation_huggingface_dataset is not None,
+        data_config.validation_huggingface_disk_path is not None,
+    ]
+    if sum(validation_sources) > 1:
         raise ValueError(
-            "Cannot specify both validation_data_jsonl and"
-            " validation_huggingface_dataset"
+            "Must specify at most one of validation_data_jsonl, "
+            "validation_huggingface_dataset, or validation_huggingface_disk_path"
         )
 
     if data_config.training_huggingface_dataset is not None:
@@ -91,7 +101,9 @@ def load_data(data_config: HypencoderDataConfig):
             split=data_config.training_data_split,
             cache_dir=cache_dir,
         )
-    elif data_config.training_data_jsonl is not None:
+    elif data_config.training_huggingface_disk_path is not None:
+        training_data = load_from_disk(data_config.training_huggingface_disk_path)
+    else:
         training_data = load_dataset(
             "json",
             data_files=data_config.training_data_jsonl,
@@ -99,22 +111,42 @@ def load_data(data_config: HypencoderDataConfig):
             cache_dir=cache_dir,
         )
 
+    if isinstance(training_data, (DatasetDict, IterableDatasetDict)):
+        training_data = training_data[data_config.training_data_split]
+
     validation_data = None
     if data_config.validation_huggingface_dataset is not None:
-        training_data = load_dataset(
+        validation_data = load_dataset(
             data_config.validation_huggingface_dataset,
             split=data_config.validation_data_split,
             cache_dir=cache_dir,
         )
+    elif data_config.validation_huggingface_disk_path is not None:
+        validation_data = load_from_disk(data_config.validation_huggingface_disk_path)
     elif data_config.validation_data_jsonl is not None:
-        training_data = load_dataset(
+        validation_data = load_dataset(
             "json",
             data_files=data_config.validation_data_jsonl,
             split=data_config.validation_data_split,
             cache_dir=cache_dir,
         )
 
+    if isinstance(validation_data, (DatasetDict, IterableDatasetDict)):
+        validation_data = validation_data[data_config.validation_data_split]
+
     return training_data, validation_data
+
+
+def _normalize_training_arguments_kwargs(kwargs: dict) -> dict:
+    """Normalize common legacy config keys to Hugging Face TrainingArguments."""
+    kwargs = dict(kwargs)
+
+    # Back-compat: older configs used `eval_strategy`.
+    if "eval_strategy" in kwargs and "evaluation_strategy" not in kwargs:
+        kwargs["evaluation_strategy"] = kwargs["eval_strategy"]
+    kwargs.pop("eval_strategy", None)
+
+    return kwargs
 
 
 def get_collator(
@@ -162,11 +194,22 @@ def train_model(cfg: HypencoderTrainingConfig):
     else:
         train_arguments_kwargs = hf_trainer_config.__dict__
 
+    if train_arguments_kwargs is None:
+        raise ValueError("hf_trainer_config resolved to None")
+    if not isinstance(train_arguments_kwargs, dict):
+        raise TypeError(
+            f"hf_trainer_config must resolve to a dict, got {type(train_arguments_kwargs)}"
+        )
+
+    train_arguments_kwargs = _normalize_training_arguments_kwargs(train_arguments_kwargs)
+
     training_args = TrainingArguments(
         **train_arguments_kwargs,
     )
     
     print("training arguments loaded\n")
+    
+    print(validation_data)
 
     trainer = Trainer(
         model=model,
@@ -174,15 +217,17 @@ def train_model(cfg: HypencoderTrainingConfig):
         train_dataset=training_data,
         eval_dataset=validation_data,
         data_collator=collator,
-        tokenizer=tokenizer,
     )
 
     print("Starting training")
     if resume_from_checkpoint is True:
-        if not os.path.exists(training_args.output_dir) or not any(
+        output_dir = training_args.output_dir
+        if output_dir is None:
+            resume_from_checkpoint = False
+        elif not os.path.exists(output_dir) or not any(
             [
                 "checkpoint" in name
-                for name in os.listdir(training_args.output_dir)
+                for name in os.listdir(output_dir)
             ]
         ):
             resume_from_checkpoint = False

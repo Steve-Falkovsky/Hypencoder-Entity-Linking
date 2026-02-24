@@ -13,4 +13,4 @@ def install_env():
     
     # Run pip install
     subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", "--upgrade"] + packages)
-    print("Installed. Restarting runtime may be required.")
+    print("Installed. Restarting session is required.")

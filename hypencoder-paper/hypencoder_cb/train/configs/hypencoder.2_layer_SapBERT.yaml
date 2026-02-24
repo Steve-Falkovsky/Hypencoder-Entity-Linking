@@ -21,6 +21,12 @@ model_config:
 data_config:
   training_data_jsonl: data/train_tokenized.jsonl
   validation_data_jsonl: data/val_tokenized.jsonl
+
+  # Each single JSON/JSONL file loaded with `load_dataset("json", data_files=...)`
+  # becomes a dataset with ONE split called "train" by default.
+  training_data_split: train
+  validation_data_split: train
+
   positive_filter_type: first # first means that the first item will be treated as a positive
   #label_key: score
   label_key: null

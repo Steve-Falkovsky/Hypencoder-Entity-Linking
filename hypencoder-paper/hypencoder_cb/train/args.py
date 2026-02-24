@@ -36,6 +36,11 @@ class HypencoderDataConfig:
     training_huggingface_dataset: Optional[str] = None
     validation_huggingface_dataset: Optional[str] = None
 
+    # Load datasets previously saved via `datasets.Dataset.save_to_disk(...)`.
+    # This is a convenient non-JSONL path for local training/eval.
+    training_huggingface_disk_path: Optional[str] = None
+    validation_huggingface_disk_path: Optional[str] = None
+
     training_data_split: str = "train"
     validation_data_split: str = "train"
 
@@ -55,8 +60,7 @@ class HFTrainerConfig:
     overwrite_output_dir: bool = False
     remove_unused_columns: bool = False
 
-    # evaluation_strategy: str = "no"
-    eval_strategy: str = "no"
+    eval_strategy: str = "epoch"
     eval_steps: int = 500
 
     per_device_train_batch_size: int = 1
@@ -153,6 +157,11 @@ def export_config_to_yaml(
 
     if config_name is None:
         config_name = config.trainer_config.hf_trainer_config.run_name
+
+    if config_name is None:
+        raise ValueError(
+            "config_name was not provided and hf_trainer_config.run_name is null"
+        )
 
     if not config_name.endswith(".yaml"):
         config_name += ".yaml"
