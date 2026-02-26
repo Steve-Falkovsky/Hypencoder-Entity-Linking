@@ -56,6 +56,13 @@ def main(config_path: str):
         label_key=dc.label_key,
         query_padding_mode="longest",
     )
+    
+    
+    # Print final resolved config and final HF training args
+    print("=== Final merged config ===")
+    print(OmegaConf.to_yaml(cfg, resolve=True))
+    print("=== Final TrainingArguments ===")
+    print(args.to_json_string())
 
     args = TrainingArguments(**OmegaConf.to_container(tc))
     trainer = Trainer(
