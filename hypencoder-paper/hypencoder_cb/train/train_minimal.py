@@ -57,14 +57,14 @@ def main(config_path: str):
         query_padding_mode="longest",
     )
     
-    
+    args = TrainingArguments(**OmegaConf.to_container(tc))
+
     # Print final resolved config and final HF training args
     print("=== Final merged config ===")
     print(OmegaConf.to_yaml(cfg, resolve=True))
     print("=== Final TrainingArguments ===")
     print(args.to_json_string())
 
-    args = TrainingArguments(**OmegaConf.to_container(tc))
     trainer = Trainer(
         model=model,
         args=args,
