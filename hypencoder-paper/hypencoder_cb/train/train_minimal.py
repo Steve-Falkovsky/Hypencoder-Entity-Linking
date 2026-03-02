@@ -9,6 +9,8 @@ from hypencoder_cb.train.data_collator import GeneralDualEncoderCollator
 
 
 def main(config_path: str):
+    
+    # reading config from yaml
     schema = OmegaConf.structured(HypencoderTrainingConfig)
     cfg = OmegaConf.merge(schema, OmegaConf.load(config_path))
 
@@ -16,6 +18,8 @@ def main(config_path: str):
     dc = cfg.data_config
     tc = cfg.trainer_config.hf_trainer_config
 
+    # passing arguments from config to the HypencoderDualEncoder
+    # this is the model we pass to the trainer
     model_cfg = HypencoderDualEncoderConfig(
         query_encoder_kwargs=OmegaConf.to_container(mc.query_encoder_kwargs),
         passage_encoder_kwargs=OmegaConf.to_container(mc.passage_encoder_kwargs),
@@ -31,6 +35,8 @@ def main(config_path: str):
 
     tokenizer = AutoTokenizer.from_pretrained(mc.tokenizer_pretrained_model_name_or_path)
 
+
+    # load training and validation datasets - either from local file or huggingface repo
     train_ds = load_dataset(
         "json" if dc.training_data_jsonl else dc.training_huggingface_dataset,
         data_files=dc.training_data_jsonl if dc.training_data_jsonl else None,
@@ -45,6 +51,8 @@ def main(config_path: str):
             split=dc.validation_data_split,
         )
 
+
+    # initialising the data collator with args from config
     collator = GeneralDualEncoderCollator(
         tokenizer=tokenizer,
         num_negatives_to_sample=dc.num_negatives_to_sample,
@@ -57,6 +65,7 @@ def main(config_path: str):
         query_padding_mode="longest",
     )
     
+    # passing training args from config
     args = TrainingArguments(**OmegaConf.to_container(tc))
 
     # Print final resolved config and final HF training args
@@ -65,14 +74,18 @@ def main(config_path: str):
     print("=== Final TrainingArguments ===")
     print(args.to_json_string())
 
+
+    # initialise the trainer with everything we've defined above
     trainer = Trainer(
         model=model,
         args=args,
         train_dataset=train_ds,
         eval_dataset=eval_ds,
         data_collator=collator,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
     )
+    
+    # train
     trainer.train(resume_from_checkpoint=cfg.trainer_config.resume_from_checkpoint)
 
 

@@ -160,7 +160,7 @@ class GeneralDualEncoderCollator:
                     [item[self.label_key] for item in selected_items]
                 )
 
-        query_inputs = self.tokenizer.pad(
+        query_inputs = self.tokenizer(
             queries,
             padding=self.query_padding_mode,
             max_length=self.query_max_length,
@@ -171,7 +171,7 @@ class GeneralDualEncoderCollator:
         if self.modify_query is not None:
             query_inputs = self.modify_query(query_inputs)
 
-        item_inputs = self.tokenizer.pad(
+        item_inputs = self.tokenizer(
             items,
             padding="longest",
             return_tensors="pt",
