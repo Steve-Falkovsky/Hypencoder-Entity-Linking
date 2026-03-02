@@ -65,6 +65,27 @@ def main(config_path: str):
         query_padding_mode="longest",
     )
     
+    # --- DEBUG: inspect one collated batch from train/eval ---
+    def _inspect_collated_batch(ds, name: str):
+        if ds is None or len(ds) == 0:
+            print(f"[debug] {name}: dataset missing or empty")
+            return
+        n = min(4, len(ds))
+        features = [ds[i] for i in range(n)]
+        batch = collator(features)
+
+        print(f"[debug] {name} batch keys: {list(batch.keys())}")
+        print(f"[debug] {name} has labels key: {'labels' in batch}")
+        print(f"[debug] {name} labels value is None: {batch.get('labels', None) is None}")
+
+        for k, v in batch.items():
+            shape = tuple(v.shape) if hasattr(v, "shape") else None
+            print(f"[debug] {name} {k}: type={type(v).__name__}, shape={shape}")
+
+    _inspect_collated_batch(train_ds, "train")
+    _inspect_collated_batch(eval_ds, "eval")
+    # --- end debug ---
+    
     # passing training args from config
     args = TrainingArguments(**OmegaConf.to_container(tc))
 
