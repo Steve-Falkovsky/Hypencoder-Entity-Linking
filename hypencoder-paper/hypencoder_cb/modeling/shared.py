@@ -122,7 +122,10 @@ class BaseDualEncoder(PreTrainedModel):
             passage_output=passage_output,
         )
 
-        if self.training or full_output:
+        #print("starting forward pass")
+        # print(f"labels is None: {labels is None}, self.training: {self.training}")
+        if query_output is not None and passage_output is not None:
+            # print("calculating loss")
             to_log = {}
 
             total_similarity_loss = torch.tensor(0.0, device=self.device)

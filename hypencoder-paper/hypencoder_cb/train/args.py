@@ -55,7 +55,6 @@ class HFTrainerConfig:
     overwrite_output_dir: bool = False
     remove_unused_columns: bool = False
 
-    # evaluation_strategy: str = "no"
     eval_strategy: str = "no"
     eval_steps: int = 500
 
@@ -77,6 +76,7 @@ class HFTrainerConfig:
 
     logging_strategy: str = "steps"
     logging_steps: int = 1
+    logging_dir: str = "logs"
     max_steps: int = -1
 
     save_strategy: str = "epoch"
@@ -89,7 +89,7 @@ class HFTrainerConfig:
     fp16: bool = False
     tf32: bool = False
     torch_compile: bool = False
-    torch_compile_mode: str = "default"
+    torch_compile_mode: Optional[str] = None
     run_name: Optional[str] = None
     disable_tqdm: bool = False
 

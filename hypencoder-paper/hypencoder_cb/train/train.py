@@ -53,13 +53,11 @@ def load_model(model_config: HypencoderModelConfig):
 
     if model_config.checkpoint_path is not None:
         print("\n\n\n\nMODEL\n\n\n\n")
-        # print(model_config.checkpoint_path)
         model = model_cls.from_pretrained(
             model_config.checkpoint_path, config=config
         )
         print(model)
     else:
-        # print('AAAA\nAAAA\n\n\n\n')
         model = model_cls(config)
 
     return model
