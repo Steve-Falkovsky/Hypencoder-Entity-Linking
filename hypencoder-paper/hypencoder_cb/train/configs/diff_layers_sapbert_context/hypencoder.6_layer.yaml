@@ -30,7 +30,7 @@ data_config:
   num_negatives_to_sample: 0
 trainer_config:
   hf_trainer_config:
-    output_dir: model/hypencoder.2_layer_SapBERT
+    output_dir: model/hypencoder.6_layer_SapBERT
     overwrite_output_dir: false
     remove_unused_columns: false
     eval_strategy: steps
@@ -58,7 +58,7 @@ trainer_config:
     bf16: false
     tf32: false
     fp16: true
-    run_name: "hypencoder.2_layer_SapBERT"
+    run_name: "hypencoder.6_layer_SapBERT"
     disable_tqdm: true
     ddp_find_unused_parameters: true
     #fsdp: false
