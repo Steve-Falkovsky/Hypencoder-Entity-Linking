@@ -2,7 +2,7 @@ model_config:
   tokenizer_pretrained_model_name_or_path: cambridgeltl/SapBERT-from-PubMedBERT-fulltext
   query_encoder_kwargs:
     model_name_or_path: cambridgeltl/SapBERT-from-PubMedBERT-fulltext
-    freeze_transformer: true
+    freeze_transformer: false
     embedding_representation: null
     base_encoder_output_dim: 768
     converter_kwargs:
@@ -11,7 +11,7 @@ model_config:
       do_residual_on_last: false
   passage_encoder_kwargs:
     model_name_or_path: cambridgeltl/SapBERT-from-PubMedBERT-fulltext
-    freeze_transformer: true
+    freeze_transformer: false
     pooling_type: cls
   shared_encoder: true
   loss_type:
@@ -35,13 +35,13 @@ trainer_config:
     remove_unused_columns: false
     eval_strategy: steps
     eval_steps: 10
-    per_device_train_batch_size: 32
-    per_device_eval_batch_size: 32
+    per_device_train_batch_size: 64
+    per_device_eval_batch_size: 64
     gradient_accumulation_steps: 1
     dataloader_prefetch_factor: 5
-    dataloader_num_workers: 1
+    dataloader_num_workers: 2
     dataloader_persistent_workers: false
-    learning_rate: 4.0e-05
+    learning_rate: 2.0e-05
     weight_decay: 0.0
     # num_train_epochs: 5
     lr_scheduler_type: linear
@@ -49,7 +49,7 @@ trainer_config:
     warmup_steps: 0
     logging_strategy: steps
     logging_steps: 10
-    logging_dir: logs  # This enables TensorBoard logging
+    logging_dir: logs # This enables TensorBoard logging
     max_steps: 200 # overrides num_train_epochs
     save_strategy: steps
     save_steps: 2500
