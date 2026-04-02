@@ -14,10 +14,11 @@ def tokenizer_standard_format_file(
     standard_format_jsonl: str,
     output_file: str,
     tokenizer: Union[str, PreTrainedTokenizerBase],
+    query_max_length: int,
+    item_max_length: int,
+    batch_size: int,
     add_special_tokens: bool = True,
-    query_max_length: int = 32,
-    item_max_length: int = 512,
-    batch_size: int = 1000,
+
     query_tokenizer_fn: Optional[
         Callable[[List[str]], List[List[int]]]
     ] = None,
@@ -37,12 +38,12 @@ def tokenizer_standard_format_file(
 
     if query_tokenizer_fn is None:
         query_tokenizer_fn = functools.partial(
-            default_tokenizer_fn, max_length=query_max_length
+            default_tokenizer_fn,
         )
 
     if item_tokenizer_fn is None:
         item_tokenizer_fn = functools.partial(
-            default_tokenizer_fn, max_length=item_max_length
+            default_tokenizer_fn,
         )
 
     queries = {}
