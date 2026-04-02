@@ -10,8 +10,7 @@ Traditional Entity Linking relies on **Bi-Encoders** and simple vector similarit
 
 Based on the research in *["Hypencoder: Hypernetworks for Information Retrieval"](https://arxiv.org/abs/2502.05364)*, this project shifts the paradigm:
 
-* **Query as a Network:** Instead of a vector, a query is encoded into a small, specialized neural network (a **Q-Net**).
-* **Dynamic Relevance:** Document embeddings are processed through this Q-Net to produce a relevance score, allowing for much higher expressivity than a simple inner product.
+* **Query-conditioned scoring:** Instead of using vector similarity, a query is encoded into a small, specialized neural network (a **Q-Net**) and is applied to document embeddings to produce a relevance score, allowing for much higher expressivity than a simple inner product.
 * **Domain Adaptation:** The implementation in this repository specifically adapts this technique for **Medical Entity Linking**, utilizing datasets like **BC5CDR** and **MeSH** to test the model in specialized domains.
 
 ---
@@ -29,9 +28,8 @@ This project demonstrates the following:
 
 ```text
 ├── hypencoder-paper/          # Core Hypencoder implementation, training configs (for creating your own models)
-├── src/entity_linking/        # Custom EL logic, models, and benchmarking tools
-├── scripts/etl/               # Data processing for BC5CDR and MeSH sources
-├── notebooks/                 # Experimental results and SapBERT vs. Hypencoder comparisons
+├── scripts/                   # Data fetching and processing for BC5CDR and MeSH sources
+├── notebooks/                 # Run Experiments - Train and evaluate Bi-encoder and Hypencoder models
 
 ```
 
@@ -64,11 +62,7 @@ pip install -r requirements.txt
 ## Quick Start: Using the Model
 
 You can experiment with pre-trained configurations or your own fine-tuned versions using the provided notebooks.
-To find datasets and trained/fine-tuned hypencoder models you can check out my profile on Hugging Face: https://huggingface.co/Stevenf232
-
-### Comparing Models
-
-To see the performance difference between a standard fine-tuned SapBERT and the Hypencoder approach, refer to the relevant notebooks
+To find datasets and trained/fine-tuned models look at `notebooks/manual.md`
 
 ### Training a Prototype
 
@@ -83,21 +77,24 @@ Also, refer to the original paper's repo for more details: https://github.com/jf
 
 ---
 
-## End to end pipeline
+## End to end pipeline 
+#### (This is only applicable if you don't want to use the existing models and datasets - more details about those in `notebooks/manual.md`)
+
 ### Get BC5CDR data
 ```bash
-./scripts/etl/fetch_bc5cdr_sources.sh
+./scripts/data_fetching/fetch_bc5cdr_sources.sh
 ```
 
 ### Process and format the data (incuding MeSH2015)
 ```bash
-python scripts/etl/prepare_bc5cdr_and_mesh.py --bc5cdr_dir data/raw/corpora_sources/CDR_Data/CDR.Corpus.v010516 --mesh2015_dir data/raw/corpora_sources/mesh2015 --out_train data/processed/bc5cdr_train.bioc.xml.gz --out_val data/processed/bc5cdr_val.bioc.xml.gz --out_test data/processed/bc5cdr_test.bioc.xml.gz --out_ontology data/processed/mesh2015.json.gz
+python scripts/data_fetching/prepare_bc5cdr_and_mesh.py --bc5cdr_dir data/raw/corpora_sources/CDR_Data/CDR.Corpus.v010516 --mesh2015_dir data/raw/corpora_sources/mesh2015 --out_train data/processed/bc5cdr_train.bioc.xml.gz --out_val data/processed/bc5cdr_val.bioc.xml.gz --out_test data/processed/bc5cdr_test.bioc.xml.gz --out_ontology data/processed/mesh2015.json.gz
 ```
 
-### Now you can create your own datasets:
+### process the data into the format you need:
+* check the script actually does what you want
 Examples for scripts are:
-`src/entity_linking/nameonly_to_jsonl.py`
-`src/entity_linking/contrastive_loss_jsonl.py`
+`scripts/preprocessing/nameonly_to_jsonl.py`
+`scripts/preprocessing/contrastive_loss_jsonl.py`
 
 ### Create your own models by:
 1. Creating a configuration by modifying a .YAML config file such as `hypencoder-paper/hypencoder_cb/train/configs/hypencoder.2_layer_finetuned_BC5CDR.yaml`
@@ -107,9 +104,9 @@ Examples for scripts are:
 ---
 
 
-## 📊 Key Findings & Results
+## 📊 Results
 
-In progress...
+The notebooks generate a log of the results and save them to file.
 ---
 
 ## 📜 Citation & Credits
