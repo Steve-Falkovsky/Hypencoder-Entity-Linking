@@ -1,8 +1,16 @@
+# About
+
+This repository hosts my dissertation and the accompanying work.
+
+[📄 Read my dissertation](docs/dissertation.pdf)
+
+It includes the full thesis, source code, and any supporting materials used throughout the project.
+
+
 # Hypencoder for Entity Linking
 
 This repository explores the application of **Hypernetworks** to the task of **Entity Linking (EL)**. 
-By moving beyond the limitations of traditional dense vector retrieval, this project implements and evaluates the **Hypencoder** architecture 
-to determine how it compares to encoder models traditionally used for tasks such as entity linking.
+By moving beyond the limitations of traditional dense vector retrieval, this project implements and evaluates the **Hypencoder** architecture to determine how it compares to encoder models traditionally used for tasks such as entity linking.
 
 ## What is a Hypencoder?
 
